@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sed -i 's/f.source_stage in \\(\"normalize\", \"signatures\"\\)/f.source_stage in \\(\"normalize\", \"signatures\", \"intent\"\\)/g' /home/aryan/Projects/Sentinal/python/tests/test_policy.py)"
+    ],
+    "additionalDirectories": [
+      "/home/aryan/Projects/Sentinal/python/tests"
+    ]
+  }
+}

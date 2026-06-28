@@ -20,6 +20,9 @@ classifiers = [
 ]
 dependencies = ["pyyaml>=6.0", "types-PyYAML>=6.0"]
 
+[project.scripts]
+promptguard = "promptguard.cli:main"
+
 [project.optional-dependencies]
 ml = [
     "sentence-transformers>=3.0",
