@@ -1,0 +1,312 @@
+# PromptGuard signature rule library — Stage 1
+#
+# Each rule:
+#   id        – unique slug, used in Finding.id
+#   category  – matches threat model categories in SPEC §2
+#   pattern   – Python regex (compiled with IGNORECASE | MULTILINE)
+#   weight    – base score [0.0, 1.0] contributed to the finding
+#   structural – true  → targets message structure (fake turns, special tokens,
+#                         delimiter breakout); blocked regardless of app profile
+#              – false → semantic content match; threshold adjusted by app profile
+#
+# NOTE: app-specific delimiter-breakout rules are generated dynamically at
+# run-time from AppProfile.template_delimiters and are NOT listed here.
+
+rules:
+
+  # ── Instruction override ──────────────────────────────────────────────────
+
+  - id: SIG-INSTR-001
+    category: instruction_override
+    pattern: 'ignore\s+(all\s+)?(previous|prior|above|earlier)\s+(instructions?|rules?|constraints?|directives?|prompts?|commands?|orders?|guidelines?|policies?)'
+    weight: 0.85
+    structural: false
+
+  - id: SIG-INSTR-002
+    category: instruction_override
+    pattern: 'disregard\s+(all\s+)?(previous|prior|above|earlier|the)?\s*(instructions?|rules?|constraints?|directives?|prompts?|commands?|orders?|guidelines?|policies?)'
+    weight: 0.85
+    structural: false
+
+  - id: SIG-INSTR-003
+    category: instruction_override
+    pattern: 'forget\s+(everything|all\s+previous|your\s+(previous\s+)?(instructions?|rules?|training))'
+    weight: 0.80
+    structural: false
+
+  # ── Red-team hardening: synonym coverage exposed by mutation engine ────────
+
+  - id: SIG-INSTR-007
+    category: instruction_override
+    pattern: '(overlook|dismiss|discard|bypass|circumvent|set\s+aside|brush\s+aside)\s+(all\s+)?(previous|prior|above)\s*(instructions?|rules?|commands?|orders?|guidelines?|directives?)'
+    weight: 0.82
+    structural: false
+
+  - id: SIG-INSTR-008
+    category: instruction_override
+    pattern: '(discard|abandon|erase|clear|wipe)\s+(everything|all\s+(previous|prior)|your\s+(instructions?|training|rules?|guidelines?))'
+    weight: 0.78
+    structural: false
+
+  - id: SIG-INSTR-004
+    category: instruction_override
+    pattern: '(override|overwrite|supersede|replace)\s+(your\s+)?(instructions?|rules?|system\s+prompt|guidelines?)'
+    weight: 0.80
+    structural: false
+
+  - id: SIG-INSTR-005
+    category: instruction_override
+    pattern: 'from\s+now\s+on\b.{0,60}(ignore|disregard|forget|bypass)\s+(the\s+)?(rules?|instructions?|guidelines?)'
+    weight: 0.78
+    structural: false
+
+  - id: SIG-INSTR-006
+    category: instruction_override
+    pattern: 'do\s+not\s+(follow|obey|adhere\s+to)\s+(your\s+)?(previous\s+)?(instructions?|rules?|guidelines?)'
+    weight: 0.80
+    structural: false
+
+  # ── System-prompt extraction ──────────────────────────────────────────────
+
+  - id: SIG-EXTR-001
+    category: system_prompt_extraction
+    pattern: '(repeat|print|output|display|show|reveal|share|return)\s+.{0,30}(your\s+)?(system\s+prompt|initial\s+prompt|(original|hidden|secret)\s+instructions?)'
+    weight: 0.80
+    structural: false
+
+  - id: SIG-EXTR-002
+    category: system_prompt_extraction
+    pattern: 'what\s+(are|were)\s+your\s+(original|initial|exact|verbatim|full)\s+(instructions?|rules?|system\s+prompt|guidelines?)'
+    weight: 0.75
+    structural: false
+
+  - id: SIG-EXTR-003
+    category: system_prompt_extraction
+    pattern: '(text|content|instructions?)\s+(above|before)\s+(this\s+)?(message|conversation|line|input)'
+    weight: 0.65
+    structural: false
+
+  - id: SIG-EXTR-004
+    category: system_prompt_extraction
+    pattern: 'repeat\s+(the\s+)?(text|content|words?|message)\s+(above|before|at\s+the\s+top)'
+    weight: 0.78
+    structural: false
+
+  - id: SIG-EXTR-005
+    category: system_prompt_extraction
+    pattern: 'print\s+(your\s+)?(system\s+prompt|hidden\s+instructions?|secret\s+instructions?)'
+    weight: 0.82
+    structural: false
+
+  - id: SIG-EXTR-006
+    category: system_prompt_extraction
+    pattern: 'tell\s+me\s+(exactly\s+)?(what|everything)\s+(your|you\s+were)\s+(told|instructed|programmed)'
+    weight: 0.72
+    structural: false
+
+  # ── Role / turn injection ─────────────────────────────────────────────────
+  # These are structural: they mimic conversation turn markers and are never
+  # legitimate user content.
+
+  - id: SIG-ROLE-001
+    category: role_turn_injection
+    pattern: '^\s*system\s*:\s*\S'
+    weight: 0.90
+    structural: true
+
+  - id: SIG-ROLE-002
+    category: role_turn_injection
+    pattern: '^\s*(assistant|ai|gpt|claude|bot)\s*:\s*\S'
+    weight: 0.90
+    structural: true
+
+  - id: SIG-ROLE-003
+    category: role_turn_injection
+    pattern: '<\|im_start\|>'
+    weight: 0.97
+    structural: true
+
+  - id: SIG-ROLE-004
+    category: role_turn_injection
+    pattern: '<\|im_end\|>'
+    weight: 0.97
+    structural: true
+
+  - id: SIG-ROLE-005
+    category: role_turn_injection
+    pattern: '\[INST\]|\[/INST\]'
+    weight: 0.97
+    structural: true
+
+  - id: SIG-ROLE-006
+    category: role_turn_injection
+    pattern: '<<SYS>>|<</SYS>>'
+    weight: 0.97
+    structural: true
+
+  - id: SIG-ROLE-007
+    category: role_turn_injection
+    pattern: '<\|system\|>|<\|user\|>|<\|assistant\|>'
+    weight: 0.97
+    structural: true
+
+  - id: SIG-ROLE-008
+    category: role_turn_injection
+    pattern: '\[SYSTEM\]|\[USER\]|\[ASSISTANT\]'
+    weight: 0.90
+    structural: true
+
+  - id: SIG-ROLE-009
+    category: role_turn_injection
+    pattern: '###\s*(system|human|assistant|instruction)\s*:'
+    weight: 0.92
+    structural: true
+
+  - id: SIG-ROLE-010
+    category: role_turn_injection
+    pattern: '<\|eot_id\|>|<\|start_header_id\|>|<\|end_header_id\|>'
+    weight: 0.97
+    structural: true
+
+  # ── Red-team hardening: flexible structural tokens (space-padded variants) ──
+  # Exposed by token_split mutation: "< | im_start | >" and "[ INST ]" evade
+  # the exact-match patterns above.  These allow optional whitespace inside.
+
+  - id: SIG-ROLE-011
+    category: role_turn_injection
+    pattern: '<\s*\|\s*im_start\s*\|\s*>'
+    weight: 0.95
+    structural: true
+
+  - id: SIG-ROLE-012
+    category: role_turn_injection
+    pattern: '<\s*\|\s*im_end\s*\|\s*>'
+    weight: 0.95
+    structural: true
+
+  - id: SIG-ROLE-013
+    category: role_turn_injection
+    pattern: '\[\s*/?INST\s*\]'
+    weight: 0.95
+    structural: true
+
+  - id: SIG-ROLE-014
+    category: role_turn_injection
+    pattern: '<<\s*/?SYS\s*>>'
+    weight: 0.95
+    structural: true
+
+  - id: SIG-ROLE-015
+    category: role_turn_injection
+    pattern: '<\s*\|\s*eot_id\s*\|\s*>|<\s*\|\s*start_header_id\s*\|\s*>|<\s*\|\s*end_header_id\s*\|\s*>'
+    weight: 0.95
+    structural: true
+
+  # ── Delimiter breakout ────────────────────────────────────────────────────
+  # Static rules for well-known generic delimiters.
+  # App-specific rules (highest weight) are injected dynamically from
+  # AppProfile.template_delimiters at run-time.
+
+  - id: SIG-DELIM-001
+    category: delimiter_breakout
+    pattern: '</?(?:system|user|human|assistant|instruction|context)\s*>'
+    weight: 0.90
+    structural: true
+
+  - id: SIG-DELIM-002
+    category: delimiter_breakout
+    pattern: '</?(?:s|sys|prompt|template)\s*>'
+    weight: 0.85
+    structural: true
+
+  - id: SIG-DELIM-003
+    category: delimiter_breakout
+    pattern: '"""END\b|"""START\b|```END\b|```START\b'
+    weight: 0.75
+    structural: true
+
+  # ── Red-team hardening: space-padded generic XML turn tags ─────────────────
+  # "< /system >" (with spaces) evades SIG-DELIM-001 which requires no space
+  # between < and the tag name.
+
+  - id: SIG-DELIM-004
+    category: delimiter_breakout
+    pattern: '<\s+/?\s*(?:system|user|human|assistant|instruction|context)\s+>'
+    weight: 0.88
+    structural: true
+
+  # ── Persona / jailbreak framing ───────────────────────────────────────────
+
+  - id: SIG-PERS-001
+    category: persona_jailbreak
+    pattern: 'you\s+are\s+(now\s+)?(DAN|jailbroken|unrestricted|unfiltered|uncensored)\b'
+    weight: 0.87
+    structural: false
+
+  - id: SIG-PERS-002
+    category: persona_jailbreak
+    pattern: '(developer|dev|debug|maintenance|god|admin|root)\s+mode\s+(enabled|activated|on\b|is\s+now)'
+    weight: 0.82
+    structural: false
+
+  - id: SIG-PERS-003
+    category: persona_jailbreak
+    pattern: 'you\s+(have|now\s+have)\s+no\s+(rules?|restrictions?|limits?|constraints?|guidelines?|filters?)'
+    weight: 0.87
+    structural: false
+
+  - id: SIG-PERS-004
+    category: persona_jailbreak
+    pattern: 'pretend\s+(you\s+)?(are|have\s+become)\s+(an?\s+)?(AI|language\s+model\s+with\s+no|unrestricted)'
+    weight: 0.78
+    structural: false
+
+  - id: SIG-PERS-005
+    category: persona_jailbreak
+    pattern: 'act\s+as\s+(if\s+you\s+(are|were)\s+)?(a\s+)?(DAN|jailbroken|unrestricted|unfiltered|uncensored|evil)\b'
+    weight: 0.84
+    structural: false
+
+  - id: SIG-PERS-006
+    category: persona_jailbreak
+    pattern: '(enable|activate|turn\s+on)\s+(jailbreak|unrestricted|unfiltered|DAN)\s*(mode\b)?'
+    weight: 0.87
+    structural: false
+
+  - id: SIG-PERS-007
+    category: persona_jailbreak
+    pattern: '\bdo\s+anything\s+now\b'
+    weight: 0.83
+    structural: false
+
+  # ── Tool / action hijack ──────────────────────────────────────────────────
+
+  - id: SIG-TOOL-001
+    category: tool_action_hijack
+    pattern: 'ignore\s+(the\s+)?user\s+and\s+(instead\s+)?(call|invoke|execute|run|use)\s+'
+    weight: 0.92
+    structural: false
+
+  - id: SIG-TOOL-002
+    category: tool_action_hijack
+    pattern: 'instead\s+of\s+(responding|answering|replying).{0,40}(call|invoke|execute|send|transfer|delete)\b'
+    weight: 0.87
+    structural: false
+
+  - id: SIG-TOOL-003
+    category: tool_action_hijack
+    pattern: 'call\s+(the\s+)?(transfer|send|delete|execute|admin|payment|email|webhook)\s+(function|tool|api|endpoint)\b'
+    weight: 0.90
+    structural: false
+
+  - id: SIG-TOOL-004
+    category: tool_action_hijack
+    pattern: '(send|forward|exfiltrate|leak)\s+(all\s+)?(?:user\s+|conversation\s+)?(data|information|messages?|conversations?|contents?)\s+(to|via)\s+\S'
+    weight: 0.92
+    structural: false
+
+  - id: SIG-TOOL-005
+    category: tool_action_hijack
+    pattern: 'execute\s+(the\s+following|this)\s+(command|code|script|function|tool)\s*:'
+    weight: 0.82
+    structural: false

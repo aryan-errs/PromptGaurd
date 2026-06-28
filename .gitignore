@@ -1,0 +1,82 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.installed.cfg
+pip-wheel-metadata/
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env
+
+# Type checker caches
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+.pyre/
+
+# Test / coverage artefacts
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+
+# ── ML / training artefacts ───────────────────────────────────────────────────
+# Model artifacts are large; train locally or download from a model registry.
+python/train/artifacts/*.pkl
+python/train/artifacts/*.joblib
+python/train/artifacts/metrics.json
+# Keep the directory placeholder
+!python/train/artifacts/.gitkeep
+
+# ── Eval / train datasets (may be large or have restrictive licences) ─────────
+# Only the bundled seed/sample files are committed.
+# Drop real public datasets here but do NOT commit them (verify licences first).
+python/eval/datasets/*.jsonl
+!python/eval/datasets/seed_attacks.jsonl
+python/train/datasets/*.jsonl
+!python/train/datasets/sample.jsonl
+!python/train/datasets/README.md
+
+# ── Logs and attempt logs ─────────────────────────────────────────────────────
+*.log
+attempts.jsonl
+promptguard_attempts.jsonl
+
+# ── Secrets / environment ─────────────────────────────────────────────────────
+.env
+.env.*
+secrets.json
+credentials.json
+
+# ── Node (future port) ────────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+
+# ── IDE / editor ─────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
