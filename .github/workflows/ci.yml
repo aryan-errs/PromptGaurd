@@ -217,7 +217,7 @@ jobs:
           print("  ok  /inspect structural → blocked")
           PY
 
-      - name: Smoke — SPEC key scenario: security-chatbot discussion → allow
+      - name: "Smoke — SPEC key scenario: security-chatbot discussion → allow"
         run: |
           python3 - <<'PY'
           import urllib.request, json
@@ -239,7 +239,7 @@ jobs:
           print("  ok  security-chatbot discussion → allow (SPEC §3)")
           PY
 
-      - name: Smoke — SPEC key scenario: security-chatbot breakout → blocked
+      - name: "Smoke — SPEC key scenario: security-chatbot breakout → blocked"
         run: |
           python3 - <<'PY'
           import urllib.request, json
