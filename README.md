@@ -3,7 +3,7 @@
 > Runtime prompt-injection defense middleware for Python and TypeScript/Node —
 > raises attacker cost, doesn't "solve" injection.
 
-[![CI](https://github.com/aryan-ers/PromptGaurd/actions/workflows/ci.yml/badge.svg)](https://github.com/aryan-ers/PromptGaurd/actions/workflows/ci.yml)
+[![CI](https://github.com/aryan-errs/PromptGaurd/actions/workflows/ci.yml/badge.svg)](https://github.com/aryan-errs/PromptGaurd/actions/workflows/ci.yml)
 
 ---
 
