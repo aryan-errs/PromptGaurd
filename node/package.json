@@ -22,11 +22,13 @@
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
+    "@types/express": "^4.17.25",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.17.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.0.0",
+    "express": "^4.22.2",
     "typescript": "^5.5.0",
     "vitest": "^2.0.0"
   },
@@ -36,8 +38,14 @@
     "openai": ">=4.0.0"
   },
   "peerDependenciesMeta": {
-    "@anthropic-ai/sdk": { "optional": true },
-    "express": { "optional": true },
-    "openai": { "optional": true }
+    "@anthropic-ai/sdk": {
+      "optional": true
+    },
+    "express": {
+      "optional": true
+    },
+    "openai": {
+      "optional": true
+    }
   }
 }

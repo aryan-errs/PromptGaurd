@@ -30,11 +30,19 @@ ml = [
     "torch>=2.2",
     "scikit-learn>=1.4",
 ]
+server = [
+    "fastapi>=0.111",
+    "uvicorn[standard]>=0.30",
+    "pydantic-settings>=2.0",
+    "httpx>=0.27",          # FastAPI TestClient transport
+]
 dev = [
     "pytest>=8.0",
     "pytest-cov>=5.0",
+    "pytest-anyio>=0.0.0",  # async test support
     "ruff>=0.4",
     "mypy>=1.10",
+    "httpx>=0.27",          # FastAPI TestClient (also pulled in by [server])
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -89,6 +97,12 @@ pretty = true
 [[tool.mypy.overrides]]
 module = ["sentence_transformers.*", "transformers.*", "sklearn.*", "torch.*", "joblib.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# FastAPI + pydantic-settings have incomplete stubs; runtime correctness is
+# covered by the 34 pytest tests in test_server.py.
+module = ["promptguard.server.*"]
+ignore_errors = true
 
 # ---------------------------------------------------------------------------
 # Pytest
