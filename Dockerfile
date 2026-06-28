@@ -46,6 +46,10 @@ WORKDIR /build
 # Copy the full Python source tree
 COPY python/ /build/
 
+# pyproject.toml has `readme = "../README.md"` (relative to python/).
+# Without this COPY hatchling fails: "Readme file does not exist: ../README.md"
+COPY README.md /README.md
+
 # Install ML + server extras.  The pip cache is NOT purged here so layer
 # caching works well for the final-stage re-install.
 RUN --mount=type=cache,target=/root/.cache/pip \
@@ -90,6 +94,7 @@ WORKDIR /app
 
 # Copy the Python package source
 COPY python/ /app/
+COPY README.md /README.md
 
 # Install only the [server] extra (fastapi + uvicorn + pydantic-settings).
 # ML deps are intentionally absent; EmbeddingClassifier falls back to
@@ -136,6 +141,7 @@ WORKDIR /app
 
 # Copy source
 COPY python/ /app/
+COPY README.md /README.md
 
 # Install ML + server deps
 RUN --mount=type=cache,target=/root/.cache/pip \
