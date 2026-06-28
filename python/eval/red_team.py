@@ -1,4 +1,4 @@
-"""Red-team mutation engine — SPEC §6.
+"""Red-team mutation engine
 
 Mutates known attacks with five strategies and reports which mutations evade
 the pipeline. Used as a robustness benchmark and regression guard.
