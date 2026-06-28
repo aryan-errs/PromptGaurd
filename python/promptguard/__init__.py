@@ -54,7 +54,7 @@ class PromptGuard:
                 f.id for f in verdict.findings
             ]
             raise PermissionError(
-                f"PromptGuard blocked input " f"(score={verdict.score:.2f}, rules={rule_ids})"
+                f"PromptGuard blocked input (score={verdict.score:.2f}, rules={rule_ids})"
             )
         return text
 

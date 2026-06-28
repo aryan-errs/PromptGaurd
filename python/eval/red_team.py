@@ -321,7 +321,7 @@ class RedTeamReport:
             rate = float(s["evasion_rate"])
             flag = "(expected high)" if mt in _EXPECTED_HIGH_EVASION else ""
             mark = "~" if mt in _EXPECTED_HIGH_EVASION else ("✓" if rate <= 0.30 else "✗")
-            lines.append(f"    {mark} {mt:<15} " f"{s['evaded']}/{s['total']} ({rate:.0%}) {flag}")
+            lines.append(f"    {mark} {mt:<15} {s['evaded']}/{s['total']} ({rate:.0%}) {flag}")
         return "\n".join(lines)
 
     def evading_examples(self, limit: int = 10) -> list[MutationResult]:

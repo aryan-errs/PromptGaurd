@@ -464,9 +464,9 @@ class TestStructuralVsSemantic:
             findings = run(text)
             cat_findings = [f for f in findings if f.category == expected_cat]
             assert cat_findings, f"no {expected_cat} finding for {text!r}"
-            assert all(
-                f.structural for f in cat_findings
-            ), f"{expected_cat} should be structural for {text!r}"
+            assert all(f.structural for f in cat_findings), (
+                f"{expected_cat} should be structural for {text!r}"
+            )
 
 
 # ---------------------------------------------------------------------------

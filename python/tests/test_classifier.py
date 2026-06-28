@@ -350,15 +350,14 @@ class TestTrainedModelBeatsBaseline:
     def test_beats_majority_class_accuracy(self, trained_result: dict[str, Any]) -> None:
         m = trained_result["metrics"]
         assert m["accuracy"] > m["baseline_accuracy"], (
-            f"Model accuracy {m['accuracy']:.3f} should beat "
-            f"baseline {m['baseline_accuracy']:.3f}"
+            f"Model accuracy {m['accuracy']:.3f} should beat baseline {m['baseline_accuracy']:.3f}"
         )
 
     def test_beats_majority_class_f1(self, trained_result: dict[str, Any]) -> None:
         m = trained_result["metrics"]
-        assert (
-            m["f1"] > m["baseline_f1"]
-        ), f"Model F1 {m['f1']:.3f} should beat baseline F1 {m['baseline_f1']:.3f}"
+        assert m["f1"] > m["baseline_f1"], (
+            f"Model F1 {m['f1']:.3f} should beat baseline F1 {m['baseline_f1']:.3f}"
+        )
 
     def test_f1_exceeds_minimum_threshold(self, trained_result: dict[str, Any]) -> None:
         m = trained_result["metrics"]

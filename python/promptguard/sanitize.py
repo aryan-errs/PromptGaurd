@@ -306,7 +306,7 @@ def _apply_spotlight(text: str) -> tuple[str, Transformation]:
     transform = Transformation(
         kind="spotlight",
         description=(
-            "wrapped in data-boundary markers; " "add SPOTLIGHT_SYSTEM_NOTE to your system prompt"
+            "wrapped in data-boundary markers; add SPOTLIGHT_SYSTEM_NOTE to your system prompt"
         ),
         original_fragment=preview,
         transformed_fragment=f"{SPOTLIGHT_PREFIX}…{SPOTLIGHT_SUFFIX}",

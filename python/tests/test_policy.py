@@ -242,12 +242,12 @@ class TestTierThresholds:
             v_high = _decide(f, risk_tier="high")
             v_med = _decide(f, risk_tier="medium")
             v_low = _decide(f, risk_tier="low")
-            assert (
-                _ACTIONS[v_high.action] >= _ACTIONS[v_med.action]
-            ), f"score={score}: high ({v_high.action}) must be >= medium ({v_med.action})"
-            assert (
-                _ACTIONS[v_med.action] >= _ACTIONS[v_low.action]
-            ), f"score={score}: medium ({v_med.action}) must be >= low ({v_low.action})"
+            assert _ACTIONS[v_high.action] >= _ACTIONS[v_med.action], (
+                f"score={score}: high ({v_high.action}) must be >= medium ({v_med.action})"
+            )
+            assert _ACTIONS[v_med.action] >= _ACTIONS[v_low.action], (
+                f"score={score}: medium ({v_med.action}) must be >= low ({v_low.action})"
+            )
 
 
 # ---------------------------------------------------------------------------

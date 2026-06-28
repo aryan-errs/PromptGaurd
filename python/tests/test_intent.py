@@ -284,18 +284,18 @@ class TestPairedUseMentionScores:
     @pytest.mark.parametrize("name,use_text,mention_text", SEMANTIC_PAIRS)
     def test_use_mention_score_is_low(self, name: str, use_text: str, mention_text: str) -> None:
         use_score = _mention_score_from_text(use_text, BANKING)
-        assert (
-            use_score < 0.4
-        ), f"Pair '{name}': USE variant should score < 0.4, got {use_score:.3f}"
+        assert use_score < 0.4, (
+            f"Pair '{name}': USE variant should score < 0.4, got {use_score:.3f}"
+        )
 
     @pytest.mark.parametrize("name,use_text,mention_text", SEMANTIC_PAIRS)
     def test_mention_mention_score_is_high(
         self, name: str, use_text: str, mention_text: str
     ) -> None:
         mention_score = _mention_score_from_text(mention_text, BANKING)
-        assert (
-            mention_score > 0.4
-        ), f"Pair '{name}': MENTION variant should score > 0.4, got {mention_score:.3f}"
+        assert mention_score > 0.4, (
+            f"Pair '{name}': MENTION variant should score > 0.4, got {mention_score:.3f}"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -428,9 +428,9 @@ class TestDecisiveRule:
     def test_both_structural_variants_blocked_on_all_profiles(self, profile: AppProfile) -> None:
         for text in (USE_STRUCTURAL, MENTION_STRUCTURAL):
             verdict = _run(text, profile)
-            assert (
-                verdict.blocked
-            ), f"structural text must be blocked under profile={profile.name}: {text!r}"
+            assert verdict.blocked, (
+                f"structural text must be blocked under profile={profile.name}: {text!r}"
+            )
 
 
 # ---------------------------------------------------------------------------

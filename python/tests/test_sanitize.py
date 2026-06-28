@@ -138,9 +138,9 @@ class TestNeutralizeSpecialTokens:
     def test_replacement_present_in_output(self, token: str, replacement: str) -> None:
         text = f"hello {token} world"
         cleaned, _ = _neutralize_special_tokens(text)
-        assert (
-            replacement in cleaned
-        ), f"expected {replacement!r} in output after neutralizing {token!r}"
+        assert replacement in cleaned, (
+            f"expected {replacement!r} in output after neutralizing {token!r}"
+        )
 
     @pytest.mark.parametrize("token,_replacement", CASES)
     def test_transformation_recorded(self, token: str, _replacement: str) -> None:
@@ -421,9 +421,9 @@ class TestSanitizedPayloadClearOfStage1:
     def test_no_structural_finding_after_sanitize(self, payload: str) -> None:
         # Confirm Stage 1 DOES fire before sanitization
         pre_findings = _sig_findings(payload)
-        assert _structural(
-            pre_findings
-        ), f"Test setup error: no structural finding for payload: {payload!r}"
+        assert _structural(pre_findings), (
+            f"Test setup error: no structural finding for payload: {payload!r}"
+        )
 
         # Sanitize
         cleaned, _ = sanitize(payload, _DEFAULT_PROFILE)
@@ -450,9 +450,9 @@ class TestSanitizedPayloadClearOfStage1:
 
         cleaned, _ = sanitize(payload, profile)
         post = sig.run(cleaned, ctx)
-        assert not _structural(
-            post
-        ), f"app delimiter structural rule still fires after sanitize: {cleaned!r}"
+        assert not _structural(post), (
+            f"app delimiter structural rule still fires after sanitize: {cleaned!r}"
+        )
 
 
 # ---------------------------------------------------------------------------

@@ -80,9 +80,9 @@ class TestRedTeamCI:
 
     def test_seed_attacks_loadable(self) -> None:
         attacks = load_seed_attacks(_SEED_FILE)
-        assert (
-            len(attacks) >= 10
-        ), f"Seed file should contain at least 10 attacks; found {len(attacks)}"
+        assert len(attacks) >= 10, (
+            f"Seed file should contain at least 10 attacks; found {len(attacks)}"
+        )
 
     def test_mutations_generated(self, red_team_report: RedTeamReport) -> None:
         assert red_team_report.total > 0
@@ -126,7 +126,7 @@ class TestMutationTypes:
         by_type = red_team_report.by_mutation_type()
         rate = float(by_type["zero_width"]["evasion_rate"])
         assert rate == 0.0, (
-            f"zero_width evasion rate {rate:.1%} > 0%: " f"S0 should strip all invisible chars."
+            f"zero_width evasion rate {rate:.1%} > 0%: S0 should strip all invisible chars."
         )
 
     def test_non_expected_mutations_below_warning_threshold(
@@ -166,7 +166,7 @@ class TestEvasionDetail:
     def test_evading_results_have_mutated_allowed(self, red_team_report: RedTeamReport) -> None:
         for r in red_team_report.evading_examples():
             assert r.mutated_action == "allow", (
-                f"Evading result should have mutated_action == allow; " f"got {r.mutated_action!r}"
+                f"Evading result should have mutated_action == allow; got {r.mutated_action!r}"
             )
 
     def test_mutation_types_present_in_results(self, red_team_report: RedTeamReport) -> None:

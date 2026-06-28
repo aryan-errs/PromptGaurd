@@ -116,7 +116,7 @@ def train_head(
     print(f"[train] Encoding {len(train_texts)} training examples…")
     t0 = time.perf_counter()
     X_train = embedder.encode(train_texts, show_progress_bar=False)
-    print(f"[train] Encoding done in {(time.perf_counter() - t0)*1000:.0f} ms")
+    print(f"[train] Encoding done in {(time.perf_counter() - t0) * 1000:.0f} ms")
 
     print("[train] Fitting LogisticRegression head…")
     head = LogisticRegression(C=1.0, max_iter=1000, random_state=42)
@@ -318,8 +318,7 @@ def main() -> None:
             print("[self-test] PASS")
         else:
             print(
-                f"[self-test] FAIL — accuracy={m.get('accuracy', 0):.3f}, "
-                f"f1={m.get('f1', 0):.3f}",
+                f"[self-test] FAIL — accuracy={m.get('accuracy', 0):.3f}, f1={m.get('f1', 0):.3f}",
                 file=sys.stderr,
             )
             sys.exit(1)
