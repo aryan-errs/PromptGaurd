@@ -1,0 +1,97 @@
+# docker-compose.yml — PromptGuard service stack
+#
+# Services
+# ────────
+#   promptguard   FastAPI detection/sanitization API  (port 8000)
+#   playground    Browser-based input sandbox          (port 8080)
+#
+# Quick start
+# ───────────
+#   docker compose up                        # uses slim heuristic image
+#   docker compose --profile full up         # uses ML-enhanced image
+#
+# Configuration — set in a .env file or pass via the shell environment.
+# Secrets (API_KEY, etc.) must never be committed or baked into the image.
+#
+#   PROMPTGUARD_API_KEY=          # empty = auth disabled (recommended for local dev)
+#   PROMPTGUARD_RISK_TIER=medium  # low | medium | high
+#   PROMPTGUARD_RATE_LIMIT_RPM=60
+#   PROMPTGUARD_ALLOW_SECURITY_DISCUSSION=false
+#   PROMPTGUARD_TEMPLATE_DELIMITERS=        # comma-separated list of app delimiters
+#   PROMPTGUARD_TOOLS_ENABLED=false
+#   PROMPTGUARD_MAX_REQUEST_BYTES=65536
+#   PROMPTGUARD_VARIANT=runtime-slim        # or runtime-full
+#   PROMPTGUARD_PORT=8000
+#   PLAYGROUND_PORT=8080
+
+name: promptguard
+
+# Shared build spec — use PROMPTGUARD_VARIANT env to switch targets
+x-build: &build-spec
+  context: .
+  dockerfile: Dockerfile
+  target: ${PROMPTGUARD_VARIANT:-runtime-slim}
+
+# ──────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── PromptGuard API server ──────────────────────────────────────────────────
+  promptguard:
+    build: *build-spec
+    image: promptguard:${PROMPTGUARD_VARIANT:-slim}
+    ports:
+      - "${PROMPTGUARD_PORT:-8000}:8000"
+    environment:
+      # Profile (set to override the compiled-in defaults)
+      PROMPTGUARD_PROFILE_NAME:               ${PROMPTGUARD_PROFILE_NAME:-default}
+      PROMPTGUARD_RISK_TIER:                  ${PROMPTGUARD_RISK_TIER:-medium}
+      PROMPTGUARD_ALLOW_SECURITY_DISCUSSION:  ${PROMPTGUARD_ALLOW_SECURITY_DISCUSSION:-false}
+      PROMPTGUARD_TEMPLATE_DELIMITERS:        ${PROMPTGUARD_TEMPLATE_DELIMITERS:-}
+      PROMPTGUARD_TOOLS_ENABLED:              ${PROMPTGUARD_TOOLS_ENABLED:-false}
+
+      # Auth — keep empty to disable; never put real secrets here
+      PROMPTGUARD_API_KEY:                    ${PROMPTGUARD_API_KEY:-}
+
+      # Rate / request limits
+      PROMPTGUARD_RATE_LIMIT_RPM:             ${PROMPTGUARD_RATE_LIMIT_RPM:-60}
+      PROMPTGUARD_MAX_REQUEST_BYTES:          ${PROMPTGUARD_MAX_REQUEST_BYTES:-65536}
+
+      # Bind address (do not change unless you know what you're doing)
+      PROMPTGUARD_HOST:                       0.0.0.0
+      PROMPTGUARD_PORT:                       8000
+
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8000/healthz"]
+      interval: 30s
+      timeout: 10s
+      start_period: 15s
+      retries: 3
+    restart: unless-stopped
+    # Read-only root FS; write /tmp for Python bytecode and uvicorn temp files
+    read_only: true
+    tmpfs:
+      - /tmp
+
+  # ── Web playground ──────────────────────────────────────────────────────────
+  # Runs the standalone browser-based demo (python -m demo.playground).
+  # Executes the detection pipeline locally — does NOT proxy to the API server.
+  playground:
+    build: *build-spec
+    image: promptguard:${PROMPTGUARD_VARIANT:-slim}
+    command: ["python3", "-m", "demo.playground", "--no-open", "--port", "8080"]
+    ports:
+      - "${PLAYGROUND_PORT:-8080}:8080"
+    environment:
+      PROMPTGUARD_PROFILE_NAME:  ${PROMPTGUARD_PROFILE_NAME:-default}
+      PROMPTGUARD_RISK_TIER:     ${PROMPTGUARD_RISK_TIER:-medium}
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp

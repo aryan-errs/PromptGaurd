@@ -1,0 +1,57 @@
+# ── Version control ───────────────────────────────────────────────────────────
+.git
+.gitignore
+.github
+
+# ── Python build/cache artefacts ─────────────────────────────────────────────
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/*.egg-info
+**/dist
+**/build
+**/.eggs
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+.venv
+venv
+env
+.env
+.env.*
+
+# ── Tool caches ───────────────────────────────────────────────────────────────
+.pytest_cache
+.mypy_cache
+.ruff_cache
+**/.cache
+
+# ── ML model artifacts (baked during docker build, not from source tree) ──────
+python/train/artifacts/*.pkl
+python/train/artifacts/*.joblib
+python/train/artifacts/metrics.json
+# (keep .gitkeep so the directory exists)
+
+# ── Node ──────────────────────────────────────────────────────────────────────
+node/node_modules
+node/dist
+node/.npm
+
+# ── Large/irrelevant top-level dirs ──────────────────────────────────────────
+benchmarks
+SPECS.md
+
+# ── Log files ─────────────────────────────────────────────────────────────────
+*.log
+attempts.jsonl
+promptguard_attempts.jsonl
+
+# ── Editor / OS ───────────────────────────────────────────────────────────────
+.idea
+.vscode
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+.claude

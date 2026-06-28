@@ -246,6 +246,94 @@ Numbers will improve/change when real public injection datasets are added._
 
 ---
 
+## Docker
+
+### Two image variants
+
+| Variant | Target | Size | Cold start | ML classifier |
+|---------|--------|------|------------|---------------|
+| `promptguard:slim` | `runtime-slim` | ~180 MB | instant | Heuristic (Backend C) |
+| `promptguard:full` | `runtime-full` | ~2 GB | 10–30 s | Embedding + LR (Backend A) |
+
+The slim image is best for most deployments. Use the full image when higher
+recall on synonym/word-split mutations justifies the 10× size.
+
+### Build
+
+```bash
+# Slim (heuristic-only, no ML deps)
+docker build --target runtime-slim -t promptguard:slim .
+
+# Full (ML classifier, pre-baked model + artifact, ~10 min first build)
+# Pass a different embedding model with --build-arg EMBEDDING_MODEL=...
+docker build --target runtime-full -t promptguard:full .
+```
+
+BuildKit is used automatically for layer caching. On subsequent builds only
+changed layers rebuild.
+
+### Run a single container
+
+```bash
+# Heuristic service — default profile, no auth
+docker run -p 8000:8000 promptguard:slim
+
+# Security-chatbot profile with API key
+docker run -p 8000:8000 \
+  -e PROMPTGUARD_PROFILE_NAME=security-chatbot \
+  -e PROMPTGUARD_RISK_TIER=low \
+  -e PROMPTGUARD_ALLOW_SECURITY_DISCUSSION=true \
+  -e PROMPTGUARD_API_KEY=mysecret \
+  promptguard:slim
+
+# Full ML image — wait for /readyz before sending traffic
+docker run -p 8000:8000 \
+  -e PROMPTGUARD_CLASSIFIER_MODEL_PATH=/app/train/artifacts/classifier_a.pkl \
+  promptguard:full
+```
+
+### Docker Compose (service + playground)
+
+```bash
+# Start both the API server and the web playground
+docker compose up
+
+# Use the full ML image
+PROMPTGUARD_VARIANT=runtime-full docker compose up
+
+# With API key auth and rate limiting
+PROMPTGUARD_API_KEY=mysecret PROMPTGUARD_RATE_LIMIT_RPM=60 docker compose up
+
+# Security-chatbot profile
+PROMPTGUARD_PROFILE_NAME=security-chatbot \
+PROMPTGUARD_RISK_TIER=low \
+PROMPTGUARD_ALLOW_SECURITY_DISCUSSION=true \
+docker compose up
+```
+
+Services:
+- **API**: `http://localhost:8000` — `/healthz`, `/readyz`, `/inspect`, `/protect`
+- **Playground**: `http://localhost:8080` — browser-based input sandbox
+
+### Environment variables (passed at runtime, never baked in)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PROMPTGUARD_API_KEY` | _(empty)_ | Shared secret for `X-API-Key` auth; empty = disabled |
+| `PROMPTGUARD_RISK_TIER` | `medium` | `low` / `medium` / `high` |
+| `PROMPTGUARD_PROFILE_NAME` | `default` | Profile name tag |
+| `PROMPTGUARD_ALLOW_SECURITY_DISCUSSION` | `false` | Raise thresholds for security chatbots |
+| `PROMPTGUARD_TEMPLATE_DELIMITERS` | _(empty)_ | Comma-separated app delimiters |
+| `PROMPTGUARD_RATE_LIMIT_RPM` | `0` | Requests/min per IP; 0 = disabled |
+| `PROMPTGUARD_MAX_REQUEST_BYTES` | `65536` | Request body size cap (64 KB) |
+| `PROMPTGUARD_PORT` | `8000` | Bind port |
+
+**Never** put `PROMPTGUARD_API_KEY` or other secrets in `docker-compose.yml` or
+the `Dockerfile`. Pass them via shell environment, a `.env` file (gitignored), or
+a secrets manager.
+
+---
+
 ## Development
 
 ### Python
