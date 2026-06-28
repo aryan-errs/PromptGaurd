@@ -3,36 +3,36 @@
 > Runtime prompt-injection defense middleware for Python and TypeScript/Node —
 > raises attacker cost, doesn't "solve" injection.
 
-[![CI](https://github.com/your-org/sentinal/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/sentinal/actions/workflows/ci.yml)
+[![CI](https://github.com/aryan-ers/PromptGaurd/actions/workflows/ci.yml/badge.svg)](https://github.com/aryan-ers/PromptGaurd/actions/workflows/ci.yml)
 
 ---
 
 ## Positioning & prior art
 
-This is a **defensive** security tool.  Know the landscape before using it:
+This is a **defensive** security tool. Know the landscape before using it:
 
-| Tool | What it is |
-|------|-----------|
-| **Lakera Guard** / **Rebuff** | Commercial / OSS injection detectors |
-| **NVIDIA NeMo Guardrails** | Programmable rails around LLM apps |
+| Tool                                        | What it is                                     |
+| ------------------------------------------- | ---------------------------------------------- |
+| **Lakera Guard** / **Rebuff**               | Commercial / OSS injection detectors           |
+| **NVIDIA NeMo Guardrails**                  | Programmable rails around LLM apps             |
 | **Microsoft Prompt Shields + spotlighting** | Datamarking to separate data from instructions |
-| **Open injection datasets** (HuggingFace) | Training and benchmark data (verify licences) |
+| **Open injection datasets** (HuggingFace)   | Training and benchmark data (verify licences)  |
 
 **Where PromptGuard earns its keep — the use-vs-mention problem.**
 Existing detectors over-block legitimate adversarial-sounding text: a security
 chatbot discussing "ignore previous instructions" attacks, a CTF helper
 explaining jailbreak techniques, a red-team assistant quoting payloads.
 PromptGuard's differentiator is a **context-aware intent layer** (Stage 3) that
-separates the *topic* of an input from its *target*.
+separates the _topic_ of an input from its _target_.
 
 **Honesty constraints** — please state these clearly in any downstream docs:
 
-- No single layer is sufficient.  PromptGuard *raises attacker cost*; it does
+- No single layer is sufficient. PromptGuard _raises attacker cost_; it does
   not "solve" injection.
 - It complements, not replaces, least-privilege tool scoping and output-side
   guardrails.
 - The structural hard-block (fake turns, delimiter breakout, ChatML tokens) is
-  the highest-confidence layer.  Semantic detection involves trade-offs.
+  the highest-confidence layer. Semantic detection involves trade-offs.
 
 ---
 
@@ -74,14 +74,12 @@ npm install
 ```typescript
 import { PromptGuard, AppProfile } from "promptguard";
 
-const guard = new PromptGuard(
-  new AppProfile("security-chatbot", true, "low")
-);
+const guard = new PromptGuard(new AppProfile("security-chatbot", true, "low"));
 
 const verdict = guard.inspect(userMessage);
 if (verdict.blocked) throw new Error("blocked");
 
-const safe = guard.protect(userMessage);  // raises on block, returns sanitized on sanitize
+const safe = guard.protect(userMessage); // raises on block, returns sanitized on sanitize
 ```
 
 ---
@@ -154,12 +152,12 @@ how the attack works** from the **attacker sending the attack**.
 
 PromptGuard Stage 3 resolves this with four signals:
 
-| Signal | Mention indicator | Use indicator |
-|--------|-------------------|---------------|
-| **Framing / quotation** | Phrase inside `"…"`, `` ` ``, or code fence | Bare imperative |
-| **Addressivity** | "Attackers might send…", "the technique works by…" | "You must now…", "From now on…" |
-| **Educational context** | "How does X work?", "explain…", "detect…" | No framing context |
-| **Structural target** | — | Any structural S1 finding (hard-block) |
+| Signal                  | Mention indicator                                  | Use indicator                          |
+| ----------------------- | -------------------------------------------------- | -------------------------------------- |
+| **Framing / quotation** | Phrase inside `"…"`, `` ` ``, or code fence        | Bare imperative                        |
+| **Addressivity**        | "Attackers might send…", "the technique works by…" | "You must now…", "From now on…"        |
+| **Educational context** | "How does X work?", "explain…", "detect…"          | No framing context                     |
+| **Structural target**   | —                                                  | Any structural S1 finding (hard-block) |
 
 The **decisive rule** (from the spec):
 
@@ -174,15 +172,15 @@ app's own template delimiter" (→ block on the same profile).
 
 ### How thresholds scale
 
-| Risk tier | sanitize | flag | block |
-|-----------|----------|------|-------|
-| `high` (banking, tools-enabled) | 0.30 | 0.50 | 0.80 |
-| `medium` (default) | 0.45 | 0.65 | 0.88 |
-| `low` (pure chat) | 0.70 | 0.82 | 0.93 |
+| Risk tier                       | sanitize | flag | block |
+| ------------------------------- | -------- | ---- | ----- |
+| `high` (banking, tools-enabled) | 0.30     | 0.50 | 0.80  |
+| `medium` (default)              | 0.45     | 0.65 | 0.88  |
+| `low` (pure chat)               | 0.70     | 0.82 | 0.93  |
 
 When `allow_security_discussion=True`, thresholds are raised by **+0.20**.
 When Stage 3 returns a mention score ≥ 0 (0–1), thresholds are raised by a
-further **+0.15 × mention\_score**.
+further **+0.15 × mention_score**.
 
 ---
 
@@ -202,13 +200,13 @@ raw input → S0 Normalize → S1 Signatures → S2 Classifier → S3 Intent →
 ### Sync between Python and Node
 
 `python/promptguard/stages/rules.yaml` is the **single source of truth** for
-Stage 1 patterns.  Both runtimes load it at startup via their respective YAML
-parsers.  Pattern syntax is restricted to the intersection of Python `re` and
+Stage 1 patterns. Both runtimes load it at startup via their respective YAML
+parsers. Pattern syntax is restricted to the intersection of Python `re` and
 JS `RegExp` (no named groups, no lookbehind with variable width, same `\b`/`\s`
 semantics).
 
 Stages 0, 3, policy, sanitizer, and the confusables map are ported
-independently.  To guard against drift, run the red-team suite against both
+independently. To guard against drift, run the red-team suite against both
 implementations and compare evasion rates.
 
 ---
@@ -223,26 +221,26 @@ implementations and compare evasion rates.
 
 ### Detection accuracy (seed data — heuristic S0+S1+S3 pipeline)
 
-| Dataset | n | Precision | Recall | F1 |
-|---------|---|-----------|--------|----|
-| Seed attacks | 18 | 100% | 100% | 1.00 |
-| Benign negatives (test split) | 10 | — | — | FP 0% |
-| Hard negatives (security chatbot) | 4 | — | — | FP 0% |
+| Dataset                           | n   | Precision | Recall | F1    |
+| --------------------------------- | --- | --------- | ------ | ----- |
+| Seed attacks                      | 18  | 100%      | 100%   | 1.00  |
+| Benign negatives (test split)     | 10  | —         | —      | FP 0% |
+| Hard negatives (security chatbot) | 4   | —         | —      | FP 0% |
 
 _Precision is 1.00 on seed data because all seed attacks are confirmed positives.
 Numbers will improve/change when real public injection datasets are added._
 
 ### Red-team mutation evasion (n=18 seed attacks × 6 strategies)
 
-| Mutation | Evaded / Total | Evasion rate | Notes |
-|----------|---------------|-------------|-------|
-| base64 | 0/54 | 0% | S0 decodes & rescores → sanitize |
-| hex | 0/54 | 0% | S0 decodes & rescores → sanitize |
-| zero\_width | 0/54 | 0% | S0 strips before S1 runs |
-| synonym\_swap | 16/72 | 22% | Some uncommon synonyms still evade |
-| token\_split | 9/21 | 43% | Word-level splits need ML classifier |
-| translation | 12/12 | 100% | Expected — English-only patterns |
-| **Overall** | **37/267** | **14%** | CI threshold: 40% |
+| Mutation     | Evaded / Total | Evasion rate | Notes                                |
+| ------------ | -------------- | ------------ | ------------------------------------ |
+| base64       | 0/54           | 0%           | S0 decodes & rescores → sanitize     |
+| hex          | 0/54           | 0%           | S0 decodes & rescores → sanitize     |
+| zero_width   | 0/54           | 0%           | S0 strips before S1 runs             |
+| synonym_swap | 16/72          | 22%          | Some uncommon synonyms still evade   |
+| token_split  | 9/21           | 43%          | Word-level splits need ML classifier |
+| translation  | 12/12          | 100%         | Expected — English-only patterns     |
+| **Overall**  | **37/267**     | **14%**      | CI threshold: 40%                    |
 
 <!-- BENCHMARK_END -->
 
@@ -283,18 +281,18 @@ npm run typecheck  # tsc --noEmit
 
 ## Milestones
 
-| # | Status | What |
-|---|--------|------|
-| 1 | ✅ | Heuristic core (S0+S1) + decision policy + tests |
-| 2 | ✅ | Classifier Backend A (embeddings+LR) + training script |
-| 3 | ✅ | Intent layer (S3) + app profiles — use-vs-mention |
-| 4 | ✅ | Sanitizer (spotlight + delimiter neutralization) |
-| 5 | ✅ | Red-team mutator + CI evasion gate |
-| 6 | ✅ | CLI + web playground |
-| 7 | ✅ | Node/TypeScript port + shared rules.yaml |
-| 8 | 🔲 | Full eval harness + real public datasets + report |
-| 9 | 🔲 | Integrations (OpenAI/Anthropic SDK wrappers, structured logging) |
-| 10 | 🔲 | LLM-as-judge fallback (S4), indirect injection for RAG/tool content |
+| #   | Status | What                                                                |
+| --- | ------ | ------------------------------------------------------------------- |
+| 1   | ✅     | Heuristic core (S0+S1) + decision policy + tests                    |
+| 2   | ✅     | Classifier Backend A (embeddings+LR) + training script              |
+| 3   | ✅     | Intent layer (S3) + app profiles — use-vs-mention                   |
+| 4   | ✅     | Sanitizer (spotlight + delimiter neutralization)                    |
+| 5   | ✅     | Red-team mutator + CI evasion gate                                  |
+| 6   | ✅     | CLI + web playground                                                |
+| 7   | ✅     | Node/TypeScript port + shared rules.yaml                            |
+| 8   | 🔲     | Full eval harness + real public datasets + report                   |
+| 9   | 🔲     | Integrations (OpenAI/Anthropic SDK wrappers, structured logging)    |
+| 10  | 🔲     | LLM-as-judge fallback (S4), indirect injection for RAG/tool content |
 
 ---
 
